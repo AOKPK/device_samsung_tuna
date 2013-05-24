@@ -1,4 +1,5 @@
 #!/system/bin/sh
+# Franco's Dev Team
 # malaroth, osm0sis, joaquinf, The Gingerbread Man, pkgnex, Khrushy, shreddintyres
 
 # custom busybox installation shortcut
@@ -9,12 +10,11 @@ bb=/system/xbin/busybox;
 # create and set permissions for /system/etc/init.d if it doesn't already exist
 $bb mount -o rw,remount /system;
 $bb [ -e /system/etc/sysctl.conf ] && $bb mv /system/etc/sysctl.conf /system/etc/sysctl.conf.fkbak;
-$bb [ -e /system/lib/hw/power.tuna.so.fkbak ] || $bb cp /system/lib/hw/power.tuna.so
-/system/lib/hw/power.tuna.so.fkbak;
+$bb [ -e /system/lib/hw/power.tuna.so.fkbak ] || $bb cp /system/lib/hw/power.tuna.so /system/lib/hw/power.tuna.so.fkbak;
 $bb cp /sbin/power.tuna.so /system/lib/hw/;
 $bb chmod 644 /system/lib/hw/power.tuna.so;
 if [ ! -e /system/etc/init.d ]; then
-  $bb mkdir /system/etc/init.d
+  $bb mkdir /system/etc/init.d;
   $bb chown -R root.root /system/etc/init.d;
   $bb chmod -R 755 /system/etc/init.d;
 fi;
@@ -38,15 +38,34 @@ for i in /sys/block/*/queue; do
   echo 0 > $i/rotational;
 done;
 
-# lmk whitelist for common launchers
-list="com.android.launcher org.adw.launcher org.adwfreak.launcher com.anddoes.launcher
-com.gau.go.launcherex com.mobint.hololauncher com.mobint.hololauncher.hd com.teslacoilsw.launcher
-com.cyanogenmod.trebuchet org.zeam";
-sleep 60;
+# remount sysfs+sdcard with noatime,nodiratime since that's all they accept
+$bb mount -o remount,nosuid,nodev,noatime,nodiratime -t auto /;
+$bb mount -o remount,nosuid,nodev,noatime,nodiratime -t auto /proc;
+$bb mount -o remount,nosuid,nodev,noatime,nodiratime -t auto /sys;
+$bb mount -o remount,nosuid,nodev,noatime,nodiratime -t auto /sys/kernel/debug;
+$bb mount -o remount,nosuid,nodev,noatime,nodiratime -t auto /mnt/shell/emulated;
+for i in /storage/emulated/*; do
+  $bb mount -o remount,nosuid,nodev,noatime,nodiratime -t auto $i;
+  $bb mount -o remount,nosuid,nodev,noatime,nodiratime -t auto $i/Android/obb;
+done;
+
+# wait for systemui and increase its priority
+until [ `$bb pidof com.android.systemui` ]; do
+  sleep 1;
+done;
+systemui=`$bb pidof com.android.systemui`;
+echo "-17" > /proc/$systemui/oom_adj;
+chmod 100 /proc/$systemui/oom_adj;
+renice -18 $systemui;
+
+# lmk whitelist for common launchers and increase its priority
+list="com.android.launcher org.adw.launcher org.adwfreak.launcher com.anddoes.launcher com.gau.go.launcherex com.mobint.hololauncher com.mobint.hololauncher.hd com.teslacoilsw.launcher com.cyanogenmod.trebuchet org.zeam";
+sleep 10
 for class in $list; do
-  pid=`pidof $class`;
-  if [ $pid != "" ]; then
+  pid=`$bb pidof $class`;
+  if [ "$pid" ]; then
     echo "-17" > /proc/$pid/oom_adj;
     chmod 100 /proc/$pid/oom_adj;
+    renice -18 $pid;
   fi;
 done;
