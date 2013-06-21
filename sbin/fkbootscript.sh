@@ -50,22 +50,27 @@ for i in /storage/emulated/*; do
 done;
 
 # wait for systemui and increase its priority
-until [ `$bb pidof com.android.systemui` ]; do
-  sleep 1;
-done;
-systemui=`$bb pidof com.android.systemui`;
-echo "-17" > /proc/$systemui/oom_adj;
-chmod 100 /proc/$systemui/oom_adj;
-renice -18 $systemui;
+while sleep 1; do
+  if [ `$bb pidof com.android.systemui` ]; then
+    systemui=`$bb pidof com.android.systemui`;
+    echo "-17" > /proc/$systemui/oom_adj;
+    chmod 100 /proc/$systemui/oom_adj;
+    renice -18 $systemui;
+    exit;
+  fi;
+done&
 
 # lmk whitelist for common launchers and increase its priority
 list="com.android.launcher org.adw.launcher org.adwfreak.launcher com.anddoes.launcher com.gau.go.launcherex com.mobint.hololauncher com.mobint.hololauncher.hd com.teslacoilsw.launcher com.cyanogenmod.trebuchet org.zeam";
-sleep 10
-for class in $list; do
-  pid=`$bb pidof $class`;
-  if [ "$pid" ]; then
-    echo "-17" > /proc/$pid/oom_adj;
-    chmod 100 /proc/$pid/oom_adj;
-    renice -18 $pid;
-  fi;
-done;
+while sleep 60; do
+  for class in $list; do
+    pid=`$bb pidof $class`;
+    if [ "$pid" ]; then
+      echo "-17" > /proc/$pid/oom_adj;
+      chmod 100 /proc/$pid/oom_adj;
+      renice -18 $pid;
+    fi;
+  done;
+  exit;
+done&
+
