@@ -69,7 +69,7 @@ PRODUCT_COPY_FILES += \
 	device/samsung/tuna/ueventd.tuna.rc:root/ueventd.tuna.rc \
 	device/samsung/tuna/sbin/fancyinit1:root/sbin/fancyinit1 \
   device/samsung/tuna/sbin/fancyinit2:root/sbin/fancyinit2 \
-  device/samsung/tuna/sbin/binaries/tune2fs:root/sbin/tune2fs \
+  device/samsung/tuna/sbin/binaries/tune2fs:root/sbin/binaries/tune2fs \
   device/samsung/tuna/sbin/power.tuna.so:system/lib/hw/power.tuna.so \
 	device/samsung/tuna/media_profiles.xml:system/etc/media_profiles.xml \
 	device/samsung/tuna/media_codecs.xml:system/etc/media_codecs.xml \
