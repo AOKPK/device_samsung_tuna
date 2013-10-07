@@ -270,15 +270,12 @@ service bugreport /system/bin/dumpstate -d -p -B \
 service battery_charger /charger
 	class charger
 
-service fkbootscript /sbin/fkbootscript.sh
+# Execute fancyinit1 startup script
+service fancyinit1 /sbin/fancyinit1
+    class main
     oneshot
-	class late_start
-	
-on property:sys.boot_completed=1
-	write /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay 15000
-	write /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load 95
-	write /sys/devices/system/cpu/cpufreq/interactive/min_sample_time 45000
-	write /sys/devices/system/cpu/cpufreq/interactive/timer_rate 15000
-	write /sys/devices/system/cpu/cpufreq/interactive/target_loads 85
-	write /sys/devices/system/cpu/cpufreq/interactive/io_is_busy 1
-	write /sys/devices/system/cpu/cpu0/cpufreq/screen_off_max_freq 537600
+
+# Execute fancyinit2 startup script
+service fancyinit2 /sbin/fancyinit2
+    class late_start
+    oneshot
