@@ -40,9 +40,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
 	nfc.tuna
 
-PRODUCT_PACKAGES += \
-	power.tuna
-
 # Support for Browser's saved page feature. This allows
 # for pages saved on previous versions of the OS to be
 # viewed on the current OS.
@@ -71,7 +68,7 @@ PRODUCT_COPY_FILES += \
 	device/samsung/tuna/fstab.tuna:root/fstab.tuna \
 	device/samsung/tuna/ueventd.tuna.rc:root/ueventd.tuna.rc \
 	device/samsung/tuna/sbin/fkbootscript.sh:root/sbin/fkbootscript.sh \
-  device/samsung/tuna/sbin/power.tuna.so:root/sbin/power.tuna.so \
+  device/samsung/tuna/sbin/power.tuna.so:system/lib/hw/power.tuna.so \
 	device/samsung/tuna/media_profiles.xml:system/etc/media_profiles.xml \
 	device/samsung/tuna/media_codecs.xml:system/etc/media_codecs.xml \
 	device/samsung/tuna/gps.conf:system/etc/gps.conf

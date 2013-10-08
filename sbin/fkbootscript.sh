@@ -9,11 +9,6 @@ bb=/system/xbin/busybox;
 $bb mount -o rw,remount /system;
 $bb [ -e /system/etc/sysctl.conf ] && $bb mv /system/etc/sysctl.conf /system/etc/sysctl.conf.fkbak;
 
-# backup and replace PowerHAL with custom build to allow OC/UC to survive screen off
-$bb [ -e /system/lib/hw/power.tuna.so.fkbak ] || $bb cp /system/lib/hw/power.tuna.so /system/lib/hw/power.tuna.so.fkbak;
-$bb cp /sbin/power.tuna.so /system/lib/hw/;
-$bb chmod 644 /system/lib/hw/power.tuna.so;
-
 # create and set permissions for /system/etc/init.d if it doesn't already exist
 if [ ! -e /system/etc/init.d ]; then
   $bb mkdir /system/etc/init.d;
@@ -37,8 +32,24 @@ for i in /sys/block/*/queue; do
   echo 2 > $i/rq_affinity;
   echo 0 > $i/nomerges;
   echo 0 > $i/add_random;
+  echo 0 > $i/iostats;
   echo 0 > $i/rotational;
 done;
+
+# Some fancy tuning
+echo 1 > /sys/devices/system/cpu/cpu0/cpufreq/gpu_oc;
+echo 2 > /sys/devices/system/cpu/sched_mc_power_savings;
+echo 15000000 > /proc/sys/kernel/sched_latency_ns
+echo 2000000 > /proc/sys/kernel/sched_min_granularity_ns
+echo 3000000 > /proc/sys/kernel/sched_wakeup_granularity_ns
+echo 92274688 > /proc/sys/vm/dirty_background_bytes
+echo 104857600 > /proc/sys/vm/dirty_bytes
+echo 35 > /proc/sys/vm/swappiness
+echo 2 > /sys/block/mmcblk0/queue/rq_affinity
+
+echo 91 > /dev/cpuctl/apps/bg_non_interactive/cpu.shares
+echo 400000 > /dev/cpuctl/apps/bg_non_interactive/cpu.rt_runtime_us
+echo 100000000 > /dev/cpuctl/apps/bg_non_interactive/timer_slack.min_slack_ns
 
 # remount sysfs+sdcard with noatime,nodiratime since that's all they accept
 $bb mount -o remount,nosuid,nodev,noatime,nodiratime -t auto /;
@@ -75,4 +86,3 @@ while sleep 60; do
   done;
   exit;
 done&
-
