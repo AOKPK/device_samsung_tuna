@@ -259,12 +259,25 @@ service iprenew_eth0 /system/bin/dhcpcd -n
 	oneshot
 
 # bugreport is triggered by holding down volume down, volume up and power
-service bugreport /system/bin/dumpstate -d -p -B \
-        -o /data/data/com.android.shell/files/bugreports/bugreport
-	class main
-	disabled
-	oneshot
-	keycodes 114 115 116
+#service bugreport /system/bin/dumpstate -d -p -B \
+#        -o /data/data/com.android.shell/files/bugreports/bugreport
+#	class main
+#	disabled
+#	oneshot
+#	keycodes 114 115 116
 
 service battery_charger /charger
 	class charger
+
+service fkbootscript /sbin/fkbootscript.sh
+	oneshot
+	class late_start
+
+on property:sys.boot_completed=1
+	write /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay 15000
+	write /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load 95
+	write /sys/devices/system/cpu/cpufreq/interactive/min_sample_time 45000
+	write /sys/devices/system/cpu/cpufreq/interactive/timer_rate 15000
+	write /sys/devices/system/cpu/cpufreq/interactive/target_loads 85
+	write /sys/devices/system/cpu/cpufreq/interactive/io_is_busy 1
+	write /sys/devices/system/cpu/cpu0/cpufreq/screen_off_max_freq 537600
